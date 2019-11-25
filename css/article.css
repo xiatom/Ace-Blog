@@ -1,0 +1,25 @@
+.code-block {
+    margin-left: 5%;
+    margin-right: 5%;
+    background-color: gray;
+}
+
+.code-style {
+    display: block;
+    background: #1d1f21;
+    color: #c5c8c6;
+    font-family: "Fira Code", "Source Code Pro", Menlo, Monaco, Consolas, monospace;
+    line-height: 1.5;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+.article-body {
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+.article-content {
+    text-align: justify;
+    font-size: large;
+}
