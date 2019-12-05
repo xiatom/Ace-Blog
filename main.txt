@@ -1,0 +1,336 @@
+#include <iostream>
+#include <cstring>
+#include <fstream>
+
+using namespace std;
+
+
+class Book {
+private:
+    char *bookNo;
+    char *bookName;
+    int Num;
+public:
+    Book() {
+        bookNo = nullptr;
+        bookName = nullptr;
+        Num = 0;
+    }
+
+    Book(char *nop, char *nap, int n) {
+        bookNo = nop;
+        bookName = nap;
+        Num = n;
+    }
+
+    void Show() {
+        cout << "No: " << bookNo << " Name: " << bookName << " Num: " << Num << endl;
+    }
+
+    void Print(ofstream &outfile) {
+        outfile << bookNo << "\t" << bookName << "\t" << Num << endl;
+    }
+
+    void setInfo(char *nop, char *nap, int n) {
+        bookNo = nop;
+        bookName = nap;
+        Num = n;
+    }
+
+    void setNum(int n) {
+        Num = n;
+    }
+
+    int getNum() {
+        return Num;
+    }
+
+    friend class bookList;
+
+};
+
+class bookList {
+private:
+    Book* Books;
+    int curLen;
+    int maxLen;
+public:
+
+    void initBookList() {
+        char *filename = "D://xb.txt";
+        readFromFile(filename);
+    }
+
+    bookList() {
+        curLen = 0;
+        maxLen = 20;
+        Books = new Book[20];
+    }
+
+    bookList(int Len) {
+        curLen = 0;
+        maxLen = Len;
+        Books = new Book[Len];
+    }
+
+    ~bookList() {
+        delete (Books);
+    }
+
+    void appendBook(char *nop, char *nap, int n) {
+        cout << "start add" << endl;
+        Books[++curLen] = Book(nop, nap, n);
+        cout << "add successfully" << endl;
+    }
+
+    int isIn(char *bkNo) {
+        for (int i = 0; i <=curLen; i++) {
+            if (strcmp(bkNo, Books[i].bookNo)) {
+                cout << "book found" << endl;
+                return i;
+            }
+        }
+        cout << "not found" << endl;
+        return -1;
+    }
+
+    Book &getBooks(int i) {
+        return Books[i];
+    }
+
+    void deleteBook(char *bkNo) {
+        int index = isIn(bkNo);
+        if (index != -1) {
+            for (int i = index; i <=curLen; i++) {
+                Books[i] = Books[i + 1];
+            }
+            curLen--;
+        }
+    }
+
+    void sortBooks() {
+
+    }
+
+    void showAll() {
+        for (int i = 0; i <=curLen; i++)
+            Books[i].Show();
+    }
+
+    int curBookLen() {
+        return curLen;
+    }
+
+    void setCurBookLen(int curLen) {
+        this->curLen = curLen;
+    }
+
+
+    void readFromFile(char *filename) {
+        ifstream infile;
+        infile.open(filename);
+        while(!infile.eof()) {
+            string name;
+            string no;
+            int num;
+            infile >> no >> name >> num;
+            char* naptr = new char[name.length()+1];
+            char* noptr = new char[no.length()+1];
+            strcpy(naptr,name.c_str());
+            strcpy(noptr,no.c_str());
+            getBooks(curLen++).setInfo(noptr,naptr,num);
+        }
+        curLen--;
+    }
+
+    void writeToFile(char *filename) {
+        ofstream outfile(filename);
+        for (int i = 0; i <= curLen; i++) {
+            Books[i].Print(outfile);
+        }
+        outfile.close();
+    }
+
+};
+
+int menu_select() {
+
+    cout << "    1.	增加图书记录" << endl;
+    cout << "    2.	删除图书记录" << endl;
+    cout << "    3.	显示所有图书记录" << endl;
+    cout << "    4.	查询图书" << endl;
+    cout << "    5.	图书入库" << endl;
+    cout << "    6.	图书销售" << endl;
+    cout << "    7.	批量导入图书记录" << endl;
+    cout << "    8.	导出图书记录" << endl;
+    cout << "    9.	按书号排序" << endl;
+    cout << "    10.	删除全部图书记录" << endl;
+    cout << "    0.	退出" << endl;
+    cout << "输入 :";
+    int num;
+    cin >> num;
+    return num;
+}
+
+void appendRecord(bookList bookList) {
+    string no;
+    string name;
+    int number;
+    cout << "输入编码、名称以及数量:" << endl;
+    cin >> no >> name >> number;
+    bookList.appendBook(new char[no.length() + 1], new char[name.length() + 1], number);
+}
+
+void delRecord(bookList bookList) {
+
+}
+
+void showAll(bookList bookList) {
+    bookList.showAll();
+}
+
+void query(bookList bookList) {
+    cout << "输入书号" << endl;
+    string no;
+    char* noptr;
+    cin >> no;
+
+    strcpy(noptr,no.c_str());
+    int index = bookList.isIn(noptr);
+    if (index >= 0)
+        bookList.getBooks(index).Show();
+    else
+        cout << "差五此书" << endl;
+}
+
+void addBooks(bookList bookList) {
+    cout << "输入要添加的书号和数量" << endl;
+    string no;
+    int num;
+    cin >> no >> num;
+    char* noptr = new char[no.length()+1];
+    strcpy(noptr,no.c_str());
+    int index;
+    if (index = bookList.isIn(noptr) >= 0)
+        bookList.getBooks(index).setNum(bookList.getBooks(index).getNum() + num);
+    else {
+        cout << "查无此书，输入书名进行添加:"<<endl;
+        string name;
+        bookList.appendBook(new char[no.length() + 1], new char[name.length() + 1], num);
+    }
+}
+
+void sellBooks(bookList bookList) {
+    cout << "输入购买的书号以及数量" << endl;
+    string no;
+    int num;
+    cin >> no >> num;
+
+    char* noptr = new char[no.length()+1];
+    strcpy(noptr,no.c_str());
+    int index;
+    if (index = bookList.isIn(noptr) >= 0) {
+        int number = bookList.getBooks(index).getNum();
+        if (number >= num)
+            bookList.getBooks(index).setNum(number - num);
+        else
+            cout<<"库存不足"<<endl;
+    } else {
+        cout << "查无此书，输入书名进行添加:"<<endl;
+    }
+}
+
+void appendFromTxtFile(bookList bookList) {
+    cout<<"输入文件名："<<endl;
+    string name;
+    cin>>name;
+    char* namePtr = new char[name.length()+1];
+    strcpy(namePtr,name.c_str());
+    bookList.readFromFile(namePtr);
+}
+
+void writeToTxtFile(bookList bookList) {
+    cout<<"输入文件名："<<endl;
+    string name;
+    cin>>name;
+    char* namePtr = new char[name.length()+1];
+    strcpy(namePtr,name.c_str());
+    bookList.writeToFile(namePtr);
+}
+
+void sortByNo(bookList bookList) {}
+
+void delAll(bookList bookList) {
+    delete(&bookList);
+    bookList.setCurBookLen(0);
+
+}
+
+char Quit(bookList bookList) {
+    cout<<"确定退出？ (y/n)"<<endl;
+    char ch ;
+    cin>>ch;
+    if(ch=='y'){
+        bookList.writeToFile("D://xb.txt");
+        exit(1);
+    } else
+        return ch;
+}
+
+
+int main() {
+
+
+    bookList booksObj;
+    int sel;
+    booksObj.initBookList();
+
+    for (;;) {
+        sel = menu_select();
+        switch (sel) {
+            case 1:
+                appendRecord(booksObj);
+//                system("pause");
+                break;
+            case 2:
+                delRecord(booksObj);
+//                system("pause");
+                break;
+            case 3:
+                showAll(booksObj);
+//                system("pause");
+                break;
+            case 4:
+                query(booksObj);
+//                system("pause");
+                break;
+            case 5:
+                addBooks(booksObj);
+//                system("pause");
+                break;
+            case 6:
+                sellBooks(booksObj);
+//                system("pause");
+                break;
+            case 7:
+                appendFromTxtFile(booksObj);
+//                system("pause");
+                break;
+            case 8:
+                writeToTxtFile(booksObj);
+//                system("pause");
+                break;
+            case 9:
+                sortByNo(booksObj);
+//                system("pause");
+                break;
+            case 10:
+                delAll(booksObj);
+//                system("pause");
+                break;
+            case 0:
+                if (Quit(booksObj) != 'y')
+                    continue;
+        }
+    }
+}
